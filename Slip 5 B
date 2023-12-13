@@ -1,0 +1,50 @@
+def bfs(graph, start, goal):
+  """
+  Performs a Breadth First Search on a graph to find the shortest path from a start node to a goal node.
+
+  Args:
+    graph: A dictionary representing the graph, where keys are nodes and values are lists of adjacent nodes.
+    start: The starting node for the search.
+    goal: The goal node to find.
+
+  Returns:
+    A list of nodes representing the shortest path from the start node to the goal node, or None if no path is found.
+  """
+  visited = set()  # Keep track of visited nodes.
+  queue = collections.deque([start])  # Queue to keep track of nodes to explore.
+
+  while queue:
+    current_node = queue.popleft()
+    visited.add(current_node)
+
+    if current_node == goal:
+      # Found the goal node! Return the path.
+      return [node for node in reversed(visited)]
+
+    for neighbor in graph[current_node]:
+      if neighbor not in visited:
+        queue.append(neighbor)
+
+  # No path found.
+  return None
+
+# Define the graph as a dictionary based on the image.
+graph = {
+  1: [2],
+  2: [1, 4, 5],
+  4: [2],
+  5: [2, 3, 6],
+  6: [5, 7],
+  3: [5],
+  7: [6, 8],
+  8: [7],
+}
+
+# Find the shortest path from node 1 to node 8.
+path = bfs(graph, 1, 8)
+
+# Print the path, if found.
+if path:
+  print("Shortest path from node 1 to node 8:", " -> ".join(str(node) for node in path))
+else:
+  print("No path found from node 1 to node 8.")
