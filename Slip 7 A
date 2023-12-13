@@ -1,0 +1,100 @@
+# Constants
+EMPTY = " "
+PLAYER_X = "X"
+PLAYER_O = "O"
+
+# Board representation
+board = [EMPTY] * 9
+
+# Utility functions
+def is_valid_move(move):
+    return 0 <= move < 9 and board[move] == EMPTY
+
+def is_win(player):
+    win_conditions = [(0, 1, 2), (3, 4, 5), (6, 7, 8),
+                      (0, 3, 6), (1, 4, 7), (2, 5, 8),
+                      (0, 4, 8), (2, 4, 6)]
+    for condition in win_conditions:
+        if all(board[i] == player for i in condition):
+            return True
+    return False
+
+def is_board_full():
+    return all(board[i] != EMPTY for i in range(9))
+
+# Minimax with alpha-beta pruning
+def minimax(player, depth, alpha, beta):
+    if is_win(player):
+        return 1
+    if is_win(opponent(player)):
+        return -1
+    if is_board_full():
+        return 0
+
+    if player == PLAYER_X:
+        best_value = -float('inf')
+        for move in range(9):
+            if is_valid_move(move):
+                board[move] = player
+                best_value = max(best_value, minimax(opponent(player), depth - 1, alpha, beta))
+                board[move] = EMPTY
+                alpha = max(alpha, best_value)
+                if alpha >= beta:
+                    break
+    else:
+        best_value = float('inf')
+        for move in range(9):
+            if is_valid_move(move):
+                board[move] = player
+                best_value = min(best_value, minimax(opponent(player), depth - 1, alpha, beta))
+                board[move] = EMPTY
+                beta = min(beta, best_value)
+                if alpha >= beta:
+                    break
+
+    return best_value
+
+def opponent(player):
+    return PLAYER_X if player == PLAYER_O else PLAYER_O
+
+# Game loop
+def play_game():
+    turn = PLAYER_X
+    depth = 3
+    while True:
+        # Display board
+        print_board()
+
+        # Check win or draw
+        if is_win(turn):
+            print(f"{turn} wins!")
+            break
+        if is_board_full():
+            print("Draw!")
+            break
+
+        # Get player move
+        move = int(input(f"{turn}'s turn. Enter move (1-9): ")) - 1
+        while not is_valid_move(move):
+            print("Invalid move. Try again.")
+            move = int(input(f"{turn}'s turn. Enter move (1-9): ")) - 1
+
+        # Make move and update turn
+        board[move] = turn
+        turn = opponent(turn)
+
+        # AI move (if applicable)
+        if turn == opponent(PLAYER_X):
+            best_move, _ = minimax(turn, depth, -float('inf'), float('inf'))
+            board[best_move] = turn
+            print(f"AI played {best_move + 1}")
+            turn = opponent(turn)
+
+def print_board():
+    for i in range(3):
+        print("|", board[3 * i], "|", board[3 * i + 1], "|", board[3 * i + 2], "|")
+
+# Start game
+if __name__ == "__main__":
+    print("Welcome to Tic-Tac-Toe!")
+    play_game()
